@@ -253,6 +253,81 @@ function defineCommitTool(bot) {
 }
 
 //#endregion
+//#region src/tools/api/create-issue.ts
+async function createIssue(config, input) {
+	const orgConfig = assertOrgRepo(input, config.orgs);
+	const [owner, repo] = input.repo.split("/");
+	const { token } = await createInstallationToken(input.org, orgConfig);
+	const issue = await githubRequest(orgConfig, token, `/repos/${owner}/${repo}/issues`, {
+		method: "POST",
+		body: JSON.stringify({
+			title: input.title,
+			body: input.body
+		})
+	});
+	return {
+		number: issue.number,
+		url: issue.html_url,
+		repo: input.repo,
+		title: issue.title
+	};
+}
+function defineCreateIssueTool(bot) {
+	return defineTool({
+		name: "github_bot_create_issue",
+		description: "Open a GitHub issue in a repository as the configured GitHub App.",
+		parameters: {
+			org: {
+				type: "string",
+				required: true
+			},
+			repo: {
+				type: "string",
+				required: true,
+				description: "Repository in owner/name form."
+			},
+			title: {
+				type: "string",
+				required: true
+			},
+			body: {
+				type: "string",
+				required: true
+			}
+		},
+		output: {
+			schema: {
+				type: "object",
+				properties: {
+					number: {
+						type: "number",
+						required: true
+					},
+					url: {
+						type: "string",
+						required: true
+					},
+					repo: {
+						type: "string",
+						required: true
+					},
+					title: {
+						type: "string",
+						required: true
+					}
+				},
+				additionalProperties: false
+			},
+			render: (_args, value) => [{
+				type: "text",
+				text: JSON.stringify(value)
+			}]
+		},
+		execute: async (args) => createIssue(bot.config, args)
+	});
+}
+
+//#endregion
 //#region src/tools/api/open-pull-request.ts
 async function openPullRequest(config, input) {
 	const orgConfig = assertOrgRepo(input, config.orgs);
@@ -353,8 +428,13 @@ var GitHubBot = class extends Service {
 		this.config = config;
 		ctx.tools.register(defineCommitTool(this));
 		ctx.tools.register(defineOpenPullRequestTool(this));
+		ctx.tools.register(defineCreateIssueTool(this));
+	}
+	/** Create a GitHub issue under the configured App installation. */
+	createIssue(input) {
+		return createIssue(this.config, input);
 	}
 };
 
 //#endregion
-export { assertCommitInput, assertOrgRepo, commitBranch, GitHubBot as default, openPullRequest };
+export { assertCommitInput, assertOrgRepo, commitBranch, createIssue, GitHubBot as default, openPullRequest };
