@@ -1,6 +1,7 @@
 packages:
   - 'role'
   - 'github-bot'
+  - 'github-mention'
   - 'hook-github'
   - 'hook-zulip'
   - 'collaboration-panel'

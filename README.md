@@ -18,6 +18,7 @@ Then set secrets in the profile patch (`$DSH_HOME/profiles/web/cordis.patch.yml`
 | `@ruyiAi/dsh-osc-role` | GitHub identity / repoList |
 | `@ruyiAi/dsh-osc-collaboration-panel` | board HTTP + web client |
 | `@ruyiAi/dsh-osc-github-bot` | App commit / PR tools |
+| `@ruyiAi/dsh-osc-github-mention` | App @mention → task Session dispatcher |
 | `@ruyiAi/dsh-osc-hook-github` | GitHub webhook |
 | `@ruyiAi/dsh-osc-hook-zulip` | Zulip webhook |
 | `@ruyiAi/dsh-osc-pr-chat` | PR comment path |

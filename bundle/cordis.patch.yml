@@ -11,6 +11,17 @@
       name: '@ruyiAi/dsh-osc-github-bot'
       config:
         orgs: {}
+    - id: github-mention
+      name: '@ruyiAi/dsh-osc-github-mention'
+      config:
+        source: osc-github
+        login: chipcrowd
+        botLogins:
+          - chipcrowd[bot]
+          - chipcrowd
+        workspaces: {}
+        agentPreset: cordis
+        permissionPreset: workspace-write
     - id: hook-github
       name: '@ruyiAi/dsh-osc-hook-github'
       config:

@@ -14,6 +14,7 @@ describe('@ruyiAi/dsh-osc', () => {
       '@ruyiAi/dsh-osc-role',
       '@ruyiAi/dsh-osc-collaboration-panel',
       '@ruyiAi/dsh-osc-github-bot',
+      '@ruyiAi/dsh-osc-github-mention',
       '@ruyiAi/dsh-osc-hook-github',
       '@ruyiAi/dsh-osc-hook-zulip',
       '@ruyiAi/dsh-osc-pr-chat',

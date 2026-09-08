@@ -16,6 +16,9 @@ importers:
       '@ruyiAi/dsh-osc-github-bot':
         specifier: workspace:*
         version: link:../github-bot
+      '@ruyiAi/dsh-osc-github-mention':
+        specifier: workspace:*
+        version: link:../github-mention
       '@ruyiAi/dsh-osc-hook-github':
         specifier: workspace:*
         version: link:../hook-github
@@ -76,6 +79,28 @@ importers:
       '@deepseek-ai/dsh-tools':
         specifier: link:../../../thirdparty/deepseek-harness/packages/core/tools
         version: link:../../../thirdparty/deepseek-harness/packages/core/tools
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../thirdparty/deepseek-harness/vendor/schemastery
+        version: link:../../../thirdparty/deepseek-harness/vendor/schemastery
+      '@types/node':
+        specifier: ^22.20.0
+        version: 22.20.1
+      tsdown:
+        specifier: ^0.15.0
+        version: 0.15.12(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+
+  github-mention:
+    dependencies:
+      '@ruyiAi/dsh-osc-hook-github':
+        specifier: workspace:*
+        version: link:../hook-github
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: link:../../../thirdparty/deepseek-harness/vendor/cordis
+        version: link:../../../thirdparty/deepseek-harness/vendor/cordis
       '@deepseek-ai/schemastery':
         specifier: link:../../../thirdparty/deepseek-harness/vendor/schemastery
         version: link:../../../thirdparty/deepseek-harness/vendor/schemastery
