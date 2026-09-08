@@ -1,0 +1,58 @@
+{
+  "name": "@ruyiAi/dsh-osc",
+  "description": "OSC meta-bundle: identity, panel, hooks, and PR chat",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml"
+  },
+  "files": [
+    "lib/",
+    "cordis.patch.yml"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "*"
+  },
+  "dependencies": {
+    "@ruyiAi/dsh-osc-role": "workspace:*",
+    "@ruyiAi/dsh-osc-collaboration-panel": "workspace:*",
+    "@ruyiAi/dsh-osc-github-bot": "workspace:*",
+    "@ruyiAi/dsh-osc-hook-github": "workspace:*",
+    "@ruyiAi/dsh-osc-hook-zulip": "workspace:*",
+    "@ruyiAi/dsh-osc-pr-chat": "workspace:*"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@deepseek-ai/cordis": "link:../../../thirdparty/deepseek-harness/vendor/cordis",
+    "@types/node": "^22.20.0",
+    "tsdown": "^0.15.0",
+    "typescript": "^5.9.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RuyiAI-Stack/dsh-osc.git",
+    "directory": "bundle"
+  },
+  "homepage": "https://github.com/RuyiAI-Stack/dsh-osc",
+  "bugs": {
+    "url": "https://github.com/RuyiAI-Stack/dsh-osc/issues"
+  }
+}

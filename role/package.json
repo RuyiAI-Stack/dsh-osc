@@ -1,0 +1,61 @@
+{
+  "name": "@ruyiAi/dsh-osc-role",
+  "description": "GitHub identity and repoList for OSC",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml"
+  },
+  "files": [
+    "lib/",
+    "cordis.patch.yml"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "*",
+    "@deepseek-ai/dsh-authorization": "*",
+    "@deepseek-ai/dsh-credentials": "*",
+    "@deepseek-ai/dsh-host-webserver": "*",
+    "@deepseek-ai/dsh-tools": "*",
+    "@deepseek-ai/schemastery": "*"
+  },
+  "dependencies": {},
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@deepseek-ai/cordis": "link:../../../thirdparty/deepseek-harness/vendor/cordis",
+    "@deepseek-ai/dsh-authorization": "link:../../../thirdparty/deepseek-harness/packages/credentials/authorization",
+    "@deepseek-ai/dsh-credentials": "link:../../../thirdparty/deepseek-harness/packages/credentials/credentials",
+    "@deepseek-ai/dsh-host-webserver": "link:../../../thirdparty/deepseek-harness/packages/host/webserver",
+    "@deepseek-ai/dsh-tools": "link:../../../thirdparty/deepseek-harness/packages/core/tools",
+    "@deepseek-ai/schemastery": "link:../../../thirdparty/deepseek-harness/vendor/schemastery",
+    "@types/node": "^22.20.0",
+    "tsdown": "^0.15.0",
+    "typescript": "^5.9.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RuyiAI-Stack/dsh-osc.git",
+    "directory": "role"
+  },
+  "homepage": "https://github.com/RuyiAI-Stack/dsh-osc",
+  "bugs": {
+    "url": "https://github.com/RuyiAI-Stack/dsh-osc/issues"
+  }
+}

@@ -1,0 +1,23 @@
+- insert:
+    - id: osc
+      name: '@ruyiAi/dsh-osc'
+    - id: authorization
+      name: '@deepseek-ai/dsh-authorization'
+    - id: role
+      name: '@ruyiAi/dsh-osc-role'
+    - id: collaboration-panel
+      name: '@ruyiAi/dsh-osc-collaboration-panel'
+    - id: github-bot
+      name: '@ruyiAi/dsh-osc-github-bot'
+      config:
+        orgs: {}
+    - id: hook-github
+      name: '@ruyiAi/dsh-osc-hook-github'
+      config:
+        secret: ''
+    - id: hook-zulip
+      name: '@ruyiAi/dsh-osc-hook-zulip'
+      config:
+        token: ''
+    - id: pr-chat
+      name: '@ruyiAi/dsh-osc-pr-chat'

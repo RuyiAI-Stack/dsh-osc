@@ -1,0 +1,3 @@
+- insert:
+    - id: collaboration-panel
+      name: '@ruyiAi/dsh-osc-collaboration-panel'

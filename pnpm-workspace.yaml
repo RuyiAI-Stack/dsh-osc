@@ -1,0 +1,8 @@
+packages:
+  - 'role'
+  - 'github-bot'
+  - 'hook-github'
+  - 'hook-zulip'
+  - 'collaboration-panel'
+  - 'pr-chat'
+  - 'bundle'

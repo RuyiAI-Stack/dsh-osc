@@ -1,0 +1,5 @@
+- insert:
+    - id: hook-github
+      name: '@ruyiAi/dsh-osc-hook-github'
+      config:
+        secret: ''

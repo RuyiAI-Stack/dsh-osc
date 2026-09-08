@@ -1,0 +1,5 @@
+- insert:
+    - id: hook-zulip
+      name: '@ruyiAi/dsh-osc-hook-zulip'
+      config:
+        token: ''
