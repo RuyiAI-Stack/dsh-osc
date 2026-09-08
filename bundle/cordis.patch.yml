@@ -7,6 +7,8 @@
       name: '@ruyiAi/dsh-osc-role'
     - id: collaboration-panel
       name: '@ruyiAi/dsh-osc-collaboration-panel'
+    - id: webhook-runtime
+      name: '@deepseek-ai/dsh-webhook'
     - id: github-bot
       name: '@ruyiAi/dsh-osc-github-bot'
       config:

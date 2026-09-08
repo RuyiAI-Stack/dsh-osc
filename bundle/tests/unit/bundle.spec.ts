@@ -11,6 +11,7 @@ describe('@ruyiAi/dsh-osc', () => {
       dependencies: Record<string, string>
     }
     for (const name of [
+      '@deepseek-ai/dsh-webhook',
       '@ruyiAi/dsh-osc-role',
       '@ruyiAi/dsh-osc-collaboration-panel',
       '@ruyiAi/dsh-osc-github-bot',
@@ -21,5 +22,13 @@ describe('@ruyiAi/dsh-osc', () => {
     ]) {
       expect(manifest.dependencies[name]).toBeTruthy()
     }
+  })
+
+  it('loads webhook runtime before github mention', () => {
+    const patch = readFileSync(resolve(pkgRoot, 'cordis.patch.yml'), 'utf8')
+    const runtime = patch.indexOf("name: '@deepseek-ai/dsh-webhook'")
+    const mention = patch.indexOf("name: '@ruyiAi/dsh-osc-github-mention'")
+    expect(runtime).toBeGreaterThanOrEqual(0)
+    expect(runtime).toBeLessThan(mention)
   })
 })

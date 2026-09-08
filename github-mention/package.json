@@ -27,6 +27,7 @@
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "*",
+    "@deepseek-ai/dsh-webhook": "*",
     "@deepseek-ai/schemastery": "*"
   },
   "dependencies": {
@@ -35,6 +36,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@deepseek-ai/cordis": "link:../../../thirdparty/deepseek-harness/vendor/cordis",
+    "@deepseek-ai/dsh-webhook": "link:../../../thirdparty/deepseek-harness/packages/webhook/webhook",
     "@deepseek-ai/schemastery": "link:../../../thirdparty/deepseek-harness/vendor/schemastery",
     "@types/node": "^22.20.0",
     "tsdown": "^0.15.0",

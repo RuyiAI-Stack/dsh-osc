@@ -29,6 +29,7 @@
     "@deepseek-ai/cordis": "*"
   },
   "dependencies": {
+    "@deepseek-ai/dsh-webhook": "link:../../../thirdparty/deepseek-harness/packages/webhook/webhook",
     "@ruyiAi/dsh-osc-role": "workspace:*",
     "@ruyiAi/dsh-osc-collaboration-panel": "workspace:*",
     "@ruyiAi/dsh-osc-github-bot": "workspace:*",

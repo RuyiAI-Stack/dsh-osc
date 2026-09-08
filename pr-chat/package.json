@@ -30,9 +30,6 @@
     "@deepseek-ai/dsh-tools": "*",
     "@deepseek-ai/dsh-agent": "*"
   },
-  "dependencies": {
-    "@ruyiAi/dsh-osc-role": "workspace:*"
-  },
   "license": "Apache-2.0",
   "devDependencies": {
     "@deepseek-ai/cordis": "link:../../../thirdparty/deepseek-harness/vendor/cordis",

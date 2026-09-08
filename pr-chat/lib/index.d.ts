@@ -61,9 +61,6 @@ declare function requireSessionId(sessionId: string): void;
 declare function requirePath(path: string): asserts path is Path;
 //#endregion
 //#region src/index.d.ts
-interface Role {
-  githubJson(path: string, init?: RequestInit): Promise<unknown>;
-}
 interface Agents {
   get(id: string): {
     readonly id: string;
@@ -79,7 +76,6 @@ interface AgentRuntime {
 }
 declare module '@deepseek-ai/cordis' {
   interface Context {
-    role: Role;
     agents: Agents;
     agentRuntime: AgentRuntime;
     prChat: PrChat;

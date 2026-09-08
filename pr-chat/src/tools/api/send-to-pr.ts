@@ -16,10 +16,10 @@ export async function sendToPr(ctx: Context, request: SendToPrRequest): Promise<
 export function defineSendToPrTool(chat: { readonly ctx: Context }) {
   return defineTool({
     name: 'pr_chat_send_to_pr',
-    description: 'Send a human-authenticated comment to a GitHub pull request.',
+    description: 'Post a comment on a GitHub issue or pull request as the configured GitHub App.',
     parameters: {
       repo: { type: 'string', required: true, description: 'Repository in owner/name form.' },
-      number: { type: 'number', required: true, description: 'Pull request number.' },
+      number: { type: 'number', required: true, description: 'Issue or pull request number.' },
       body: { type: 'string', required: true },
     },
     output: {

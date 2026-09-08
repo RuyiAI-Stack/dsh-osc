@@ -72,11 +72,7 @@ export default class GithubMention extends Service {
     super(ctx, 'githubMention')
     this.config = config
 
-    const runtime = ctx.get('webhookRuntime') as WebhookRuntimeLike | undefined
-    if (runtime === undefined) {
-      ctx.logger.warn('github-mention: webhookRuntime unavailable, dispatcher inactive')
-      return
-    }
+    const runtime = ctx.get('webhookRuntime') as WebhookRuntimeLike
 
     const policy: MentionPolicy = {
       login: this.config.login,
@@ -100,17 +96,13 @@ export default class GithubMention extends Service {
       if (this.recent.has(key)) return
       this.recent.set(key, Date.now())
       if (this.recent.size > DEDUPE_MAX) this.recent.delete(this.recent.keys().next().value)
-      try {
-        runtime.dispatch({
-          kind: 'github',
-          source: this.config.source,
-          deliveryId: event.delivery,
-          receivedAt: Date.now(),
-          event: { name: event.event, payload: event.payload },
-        })
-      } catch (err) {
-        ctx.logger.warn(`github-mention: dispatch failed: ${err instanceof Error ? err.message : String(err)}`)
-      }
+      runtime.dispatch({
+        kind: 'github',
+        source: this.config.source,
+        deliveryId: event.delivery,
+        receivedAt: Date.now(),
+        event: { name: event.event, payload: event.payload },
+      })
     })
   }
 

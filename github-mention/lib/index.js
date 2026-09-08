@@ -142,10 +142,6 @@ var GithubMention = class extends Service {
 		super(ctx, "githubMention");
 		this.config = config;
 		const runtime = ctx.get("webhookRuntime");
-		if (runtime === void 0) {
-			ctx.logger.warn("github-mention: webhookRuntime unavailable, dispatcher inactive");
-			return;
-		}
 		const policy = {
 			login: this.config.login,
 			botLogins: this.config.botLogins,
@@ -162,20 +158,16 @@ var GithubMention = class extends Service {
 			if (this.recent.has(key)) return;
 			this.recent.set(key, Date.now());
 			if (this.recent.size > DEDUPE_MAX) this.recent.delete(this.recent.keys().next().value);
-			try {
-				runtime.dispatch({
-					kind: "github",
-					source: this.config.source,
-					deliveryId: event.delivery,
-					receivedAt: Date.now(),
-					event: {
-						name: event.event,
-						payload: event.payload
-					}
-				});
-			} catch (err) {
-				ctx.logger.warn(`github-mention: dispatch failed: ${err instanceof Error ? err.message : String(err)}`);
-			}
+			runtime.dispatch({
+				kind: "github",
+				source: this.config.source,
+				deliveryId: event.delivery,
+				receivedAt: Date.now(),
+				event: {
+					name: event.event,
+					payload: event.payload
+				}
+			});
 		});
 	}
 	evaluate(policy, delivery, signal) {

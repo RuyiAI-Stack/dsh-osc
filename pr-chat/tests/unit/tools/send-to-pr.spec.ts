@@ -3,12 +3,13 @@ import { describe, expect, it, vi } from 'vitest'
 import { defineSendToPrTool, sendToPr } from '../../../src/tools/api/send-to-pr.ts'
 
 function makeCtx(overrides: {
-  githubJson?: ReturnType<typeof vi.fn>
+  createComment?: ReturnType<typeof vi.fn>
   emit?: ReturnType<typeof vi.fn>
 }): Context {
+  const createComment = overrides.createComment ?? vi.fn()
   return {
     emit: overrides.emit ?? vi.fn(),
-    role: { githubJson: overrides.githubJson ?? vi.fn() },
+    get: (name: string) => (name === 'githubBot' ? { createComment } : undefined),
     agents: { get: vi.fn() },
     agentRuntime: { prompt: vi.fn() },
   } as unknown as Context
@@ -20,11 +21,11 @@ describe('pr_chat_send_to_pr', () => {
   })
 
   it('rejects empty body before calling GitHub', async () => {
-    const githubJson = vi.fn()
+    const createComment = vi.fn()
     await expect(
-      sendToPr(makeCtx({ githubJson }), { repo: 'a/b', number: 1, body: '' }),
+      sendToPr(makeCtx({ createComment }), { repo: 'a/b', number: 1, body: '' }),
     ).rejects.toThrow(/body is required/)
-    expect(githubJson).not.toHaveBeenCalled()
+    expect(createComment).not.toHaveBeenCalled()
   })
 
   it('rejects bad repo', async () => {
@@ -33,23 +34,25 @@ describe('pr_chat_send_to_pr', () => {
     ).rejects.toThrow(/owner\/name/)
   })
 
-  it('posts comment and emits events', async () => {
+  it('posts comment through the GitHub App and emits events', async () => {
     const emit = vi.fn()
-    const githubJson = vi.fn(async () => ({
-      id: 42,
-      html_url: 'https://github.com/a/b/pull/1#issuecomment-42',
+    const createComment = vi.fn(async () => ({
+      commentId: 42,
+      url: 'https://github.com/a/b/pull/1#issuecomment-42',
+      repo: 'a/b',
     }))
-    const ctx = makeCtx({ emit, githubJson })
+    const ctx = makeCtx({ emit, createComment })
     await expect(sendToPr(ctx, { repo: 'a/b', number: 1, body: 'hi' })).resolves.toEqual({
       path: 'pr',
       target: { repo: 'a/b', number: 1 },
       commentId: 42,
       url: 'https://github.com/a/b/pull/1#issuecomment-42',
     })
-    expect(githubJson).toHaveBeenCalledWith('/repos/a/b/issues/1/comments', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ body: 'hi' }),
+    expect(createComment).toHaveBeenCalledWith({
+      org: 'a',
+      repo: 'a/b',
+      number: 1,
+      body: 'hi',
     })
     expect(emit).toHaveBeenCalledWith('pr-chat/path', {
       path: 'pr',
@@ -61,10 +64,12 @@ describe('pr_chat_send_to_pr', () => {
     )
   })
 
-  it('throws when GitHub response is invalid', async () => {
-    const githubJson = vi.fn(async () => ({ id: 'x' }))
+  it('propagates GitHub App failures', async () => {
+    const createComment = vi.fn(async () => {
+      throw new Error('github-bot: unknown org x')
+    })
     await expect(
-      sendToPr(makeCtx({ githubJson }), { repo: 'a/b', number: 1, body: 'hi' }),
-    ).rejects.toThrow(/missing id or html_url/)
+      sendToPr(makeCtx({ createComment }), { repo: 'x/y', number: 1, body: 'hi' }),
+    ).rejects.toThrow(/unknown org x/)
   })
 })

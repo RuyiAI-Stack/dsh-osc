@@ -27,21 +27,21 @@ function ctxEmit(ctx, event, value) {
 	ctx.emit(event, value);
 }
 async function sendPr(ctx, target, body) {
-	const [owner, repo] = requireRepo(target.repo);
+	const [org] = requireRepo(target.repo);
 	requireNumber(target.number);
-	const response = await ctx.role.githubJson(`/repos/${owner}/${repo}/issues/${target.number}/comments`, {
-		method: "POST",
-		headers: { "content-type": "application/json" },
-		body: JSON.stringify({ body })
+	const githubBot = ctx.get("githubBot");
+	if (githubBot === void 0) throw new Error("pr-chat: githubBot service is not available");
+	const result = await githubBot.createComment({
+		org,
+		repo: target.repo,
+		number: target.number,
+		body
 	});
-	if (response === null || typeof response !== "object") throw new Error("pr-chat: GitHub comment response is invalid");
-	const result = response;
-	if (!Number.isSafeInteger(result.id) || typeof result.html_url !== "string" || result.html_url.length === 0) throw new Error("pr-chat: GitHub comment response is missing id or html_url");
 	return {
 		path: "pr",
 		target,
-		commentId: result.id,
-		url: result.html_url
+		commentId: result.commentId,
+		url: result.url
 	};
 }
 async function sendBot(ctx, target, body) {
@@ -137,7 +137,7 @@ async function sendToPr(ctx, request) {
 function defineSendToPrTool(chat) {
 	return defineTool({
 		name: "pr_chat_send_to_pr",
-		description: "Send a human-authenticated comment to a GitHub pull request.",
+		description: "Post a comment on a GitHub issue or pull request as the configured GitHub App.",
 		parameters: {
 			repo: {
 				type: "string",
@@ -147,7 +147,7 @@ function defineSendToPrTool(chat) {
 			number: {
 				type: "number",
 				required: true,
-				description: "Pull request number."
+				description: "Issue or pull request number."
 			},
 			body: {
 				type: "string",
@@ -190,7 +190,7 @@ function defineSendToPrTool(chat) {
 //#region src/index.ts
 var PrChat = class extends Service {
 	static inject = [
-		"role",
+		"githubBot",
 		"agents",
 		"agentRuntime",
 		"tools"

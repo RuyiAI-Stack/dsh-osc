@@ -32,10 +32,6 @@ export {
   requireSessionId,
 } from './tools/libs/validate.ts'
 
-interface Role {
-  githubJson(path: string, init?: RequestInit): Promise<unknown>
-}
-
 interface Agents {
   get(id: string): { readonly id: string } | undefined
 }
@@ -49,7 +45,6 @@ interface AgentRuntime {
 
 declare module '@deepseek-ai/cordis' {
   interface Context {
-    role: Role
     agents: Agents
     agentRuntime: AgentRuntime
     prChat: PrChat
@@ -62,7 +57,7 @@ declare module '@deepseek-ai/cordis' {
 }
 
 export default class PrChat extends Service {
-  static inject = ['role', 'agents', 'agentRuntime', 'tools']
+  static inject = ['githubBot', 'agents', 'agentRuntime', 'tools']
 
   constructor(ctx: Context) {
     super(ctx, 'prChat')

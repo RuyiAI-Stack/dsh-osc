@@ -13,6 +13,20 @@ interface Config {
 }
 declare const Config: z<Config>;
 //#endregion
+//#region src/tools/api/create-comment.d.ts
+interface CreateCommentInput {
+  org: string;
+  repo: string;
+  number: number;
+  body: string;
+}
+interface CreateCommentResult {
+  commentId: number;
+  url: string;
+  repo: string;
+}
+declare function createComment(config: Config, input: CreateCommentInput): Promise<CreateCommentResult>;
+//#endregion
 //#region src/tools/api/create-issue.d.ts
 interface CreateIssueInput {
   org: string;
@@ -89,6 +103,8 @@ declare class GitHubBot extends Service {
   constructor(ctx: Context, config: Config);
   /** Create a GitHub issue under the configured App installation. */
   createIssue(input: CreateIssueInput): Promise<CreateIssueResult>;
+  /** Post a comment on a GitHub issue or pull request under the configured App installation. */
+  createComment(input: CreateCommentInput): Promise<CreateCommentResult>;
 }
 declare module '@deepseek-ai/cordis' {
   interface Context {
@@ -96,4 +112,4 @@ declare module '@deepseek-ai/cordis' {
   }
 }
 //#endregion
-export { type CommitChange, type CommitInput, type CommitResult, type Config, type CreateIssueInput, type CreateIssueResult, type OpenPullRequestInput, type OpenPullRequestResult, type OrgConfig, assertCommitInput, assertOrgRepo, commitBranch, createIssue, GitHubBot as default, openPullRequest };
+export { type CommitChange, type CommitInput, type CommitResult, type Config, type CreateCommentInput, type CreateCommentResult, type CreateIssueInput, type CreateIssueResult, type OpenPullRequestInput, type OpenPullRequestResult, type OrgConfig, assertCommitInput, assertOrgRepo, commitBranch, createComment, createIssue, GitHubBot as default, openPullRequest };

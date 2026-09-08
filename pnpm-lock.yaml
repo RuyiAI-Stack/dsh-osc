@@ -10,6 +10,9 @@ importers:
 
   bundle:
     dependencies:
+      '@deepseek-ai/dsh-webhook':
+        specifier: link:../../../thirdparty/deepseek-harness/packages/webhook/webhook
+        version: link:../../../thirdparty/deepseek-harness/packages/webhook/webhook
       '@ruyiAi/dsh-osc-collaboration-panel':
         specifier: workspace:*
         version: link:../collaboration-panel
@@ -101,6 +104,9 @@ importers:
       '@deepseek-ai/cordis':
         specifier: link:../../../thirdparty/deepseek-harness/vendor/cordis
         version: link:../../../thirdparty/deepseek-harness/vendor/cordis
+      '@deepseek-ai/dsh-webhook':
+        specifier: link:../../../thirdparty/deepseek-harness/packages/webhook/webhook
+        version: link:../../../thirdparty/deepseek-harness/packages/webhook/webhook
       '@deepseek-ai/schemastery':
         specifier: link:../../../thirdparty/deepseek-harness/vendor/schemastery
         version: link:../../../thirdparty/deepseek-harness/vendor/schemastery
@@ -157,10 +163,6 @@ importers:
         version: 5.9.3
 
   pr-chat:
-    dependencies:
-      '@ruyiAi/dsh-osc-role':
-        specifier: workspace:*
-        version: link:../role
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: link:../../../thirdparty/deepseek-harness/vendor/cordis
