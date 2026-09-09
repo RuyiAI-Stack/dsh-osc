@@ -8,6 +8,7 @@ const root = resolve(fileURLToPath(new URL('../..', import.meta.url)))
 const plugins = [
   'role',
   'github-bot',
+  'github-ci-continuation',
   'github-mention',
   'pr-chat',
   'hook-github',
