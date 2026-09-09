@@ -23,6 +23,7 @@ function assertOrgRepo(input, orgs) {
 function assertCommitInput(input, orgs) {
 	const orgConfig = assertOrgRepo(input, orgs);
 	if (!input.changes?.length) throw new Error("github-bot: changes must not be empty");
+	for (const change of input.changes) if ((typeof change.content === "string" && change.content !== "") === (typeof change.sha === "string" && change.sha !== "")) throw new Error("github-bot: each change must provide exactly one of `content` or `sha`");
 	return orgConfig;
 }
 
@@ -133,7 +134,13 @@ async function commitBranch(config, input) {
 		parentSha = (await request(`/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(input.base)}`)).object.sha;
 	}
 	const parent = await request(`/repos/${owner}/${repo}/git/commits/${parentSha}`);
-	const blobs = await Promise.all(input.changes.map(async (change) => {
+	const entries = await Promise.all(input.changes.map(async (change) => {
+		if (change.sha !== void 0) return {
+			path: change.path,
+			mode: "160000",
+			type: "commit",
+			sha: change.sha
+		};
 		const blob = await request(`/repos/${owner}/${repo}/git/blobs`, {
 			method: "POST",
 			body: JSON.stringify({
@@ -152,7 +159,7 @@ async function commitBranch(config, input) {
 		method: "POST",
 		body: JSON.stringify({
 			base_tree: parent.tree.sha,
-			tree: blobs
+			tree: entries
 		})
 	});
 	const commit = await request(`/repos/${owner}/${repo}/git/commits`, {
@@ -163,7 +170,7 @@ async function commitBranch(config, input) {
 			parents: [parentSha]
 		})
 	});
-	if (updating) await request(branchPath, {
+	if (updating) await request(`/repos/${owner}/${repo}/git/refs/heads/${encodeURIComponent(input.branch)}`, {
 		method: "PATCH",
 		body: JSON.stringify({
 			sha: commit.sha,
@@ -223,7 +230,11 @@ function defineCommitTool(bot) {
 						},
 						content: {
 							type: "string",
-							required: true
+							description: "Regular file content; mutually exclusive with `sha`."
+						},
+						sha: {
+							type: "string",
+							description: "Submodule gitlink commit SHA; mutually exclusive with `content`."
 						}
 					},
 					additionalProperties: false

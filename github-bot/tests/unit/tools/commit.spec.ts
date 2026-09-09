@@ -127,7 +127,7 @@ describe('github_bot_commit', () => {
         if (href.includes('/git/commits') && init?.method === 'POST') {
           return new Response(JSON.stringify({ sha: 'commit-sha' }), { status: 200 })
         }
-        if (href.includes('/git/ref/heads/feat') && init?.method === 'PATCH') {
+        if (href.includes('/git/refs/heads/feat') && init?.method === 'PATCH') {
           patchBodies.push(init.body)
           return new Response(JSON.stringify({}), { status: 200 })
         }
@@ -152,5 +152,78 @@ describe('github_bot_commit', () => {
     })
 
     expect(patchBodies).toEqual([JSON.stringify({ sha: 'commit-sha', force: false })])
+  })
+
+  it('commits a submodule gitlink entry without creating a blob', async () => {
+    setupPem()
+    const treeBodies: unknown[] = []
+    const blobHits: string[] = []
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string | URL, init?: RequestInit) => {
+        const href = String(url)
+        if (href.includes('/app/installations?')) {
+          return new Response(JSON.stringify([{ id: 9, account: { login: 'DangoSys' } }]), { status: 200 })
+        }
+        if (href.includes('/access_tokens')) {
+          return new Response(JSON.stringify({ token: 'tok', expires_at: 't' }), { status: 200 })
+        }
+        if (href.includes('/git/ref/heads/feat') && (!init?.method || init.method === 'GET')) {
+          return new Response(JSON.stringify({ object: { sha: 'existing-head' } }), { status: 200 })
+        }
+        if (href.includes('/git/commits/existing-head')) {
+          return new Response(JSON.stringify({ tree: { sha: 'tree-base' } }), { status: 200 })
+        }
+        if (href.includes('/git/blobs')) {
+          blobHits.push(href)
+          return new Response(JSON.stringify({ sha: 'blob-sha' }), { status: 200 })
+        }
+        if (href.includes('/git/trees')) {
+          treeBodies.push(init?.body)
+          return new Response(JSON.stringify({ sha: 'tree-sha' }), { status: 200 })
+        }
+        if (href.includes('/git/commits') && init?.method === 'POST') {
+          return new Response(JSON.stringify({ sha: 'commit-sha' }), { status: 200 })
+        }
+        if (href.includes('/git/refs/heads/feat') && init?.method === 'PATCH') {
+          return new Response(JSON.stringify({}), { status: 200 })
+        }
+        throw new Error(`unexpected fetch ${href} ${init?.method}`)
+      }),
+    )
+
+    const submoduleSha = 'db242ec4aab8d5e2374e41a457058386b8ef57a6'
+    await expect(
+      commitBranch(config, {
+        org: 'DangoSys',
+        repo: 'DangoSys/buckyball',
+        base: 'main',
+        branch: 'feat',
+        message: 'bump submodule',
+        changes: [{ path: '.agents/skills', sha: submoduleSha }],
+      }),
+    ).resolves.toEqual({ commitSha: 'commit-sha', branch: 'feat', base: 'main', repo: 'DangoSys/buckyball' })
+
+    expect(blobHits).toEqual([])
+    expect(treeBodies).toEqual([
+      JSON.stringify({
+        base_tree: 'tree-base',
+        tree: [{ path: '.agents/skills', mode: '160000', type: 'commit', sha: submoduleSha }],
+      }),
+    ])
+  })
+
+  it('rejects a change that has neither content nor sha', async () => {
+    setupPem()
+    await expect(
+      commitBranch(config, {
+        org: 'DangoSys',
+        repo: 'DangoSys/buckyball',
+        base: 'main',
+        branch: 'feat',
+        message: 'msg',
+        changes: [{ path: 'a.txt' }],
+      }),
+    ).rejects.toThrow(/exactly one of/)
   })
 })

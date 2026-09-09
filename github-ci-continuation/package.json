@@ -1,6 +1,6 @@
 {
-  "name": "@ruyiAi/dsh-osc",
-  "description": "OSC meta-bundle: identity, panel, hooks, and PR chat",
+  "name": "@ruyiAi/dsh-osc-github-ci-continuation",
+  "description": "Continue a PR iteration when its CI reports a terminal failure",
   "version": "0.1.0",
   "type": "module",
   "main": "lib/index.js",
@@ -26,22 +26,18 @@
     }
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "*"
+    "@deepseek-ai/cordis": "*",
+    "@deepseek-ai/dsh-webhook": "*",
+    "@deepseek-ai/schemastery": "*"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-webhook": "link:../../../thirdparty/deepseek-harness/packages/webhook/webhook",
-    "@ruyiAi/dsh-osc-role": "workspace:*",
-    "@ruyiAi/dsh-osc-collaboration-panel": "workspace:*",
-    "@ruyiAi/dsh-osc-github-bot": "workspace:*",
-    "@ruyiAi/dsh-osc-github-mention": "workspace:*",
-    "@ruyiAi/dsh-osc-hook-github": "workspace:*",
-    "@ruyiAi/dsh-osc-hook-zulip": "workspace:*",
-    "@ruyiAi/dsh-osc-pr-chat": "workspace:*",
-    "@ruyiAi/dsh-osc-github-ci-continuation": "workspace:*"
+    "@ruyiAi/dsh-osc-hook-github": "workspace:*"
   },
   "license": "Apache-2.0",
   "devDependencies": {
     "@deepseek-ai/cordis": "link:../../../thirdparty/deepseek-harness/vendor/cordis",
+    "@deepseek-ai/dsh-webhook": "link:../../../thirdparty/deepseek-harness/packages/webhook/webhook",
+    "@deepseek-ai/schemastery": "link:../../../thirdparty/deepseek-harness/vendor/schemastery",
     "@types/node": "^22.20.0",
     "tsdown": "^0.15.0",
     "typescript": "^5.9.0"
@@ -52,7 +48,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RuyiAI-Stack/dsh-osc.git",
-    "directory": "bundle"
+    "directory": "github-ci-continuation"
   },
   "homepage": "https://github.com/RuyiAI-Stack/dsh-osc",
   "bugs": {

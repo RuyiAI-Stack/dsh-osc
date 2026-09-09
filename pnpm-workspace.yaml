@@ -6,4 +6,5 @@ packages:
   - 'hook-zulip'
   - 'collaboration-panel'
   - 'pr-chat'
+  - 'github-ci-continuation'
   - 'bundle'

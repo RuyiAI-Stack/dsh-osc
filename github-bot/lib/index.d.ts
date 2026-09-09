@@ -52,14 +52,18 @@ declare function assertCommitInput(input: {
   repo: string;
   changes: {
     path: string;
-    content: string;
+    content?: string;
+    sha?: string;
   }[];
 }, orgs: Record<string, OrgConfig>): OrgConfig;
 //#endregion
 //#region src/tools/api/commit.d.ts
 interface CommitChange {
   path: string;
-  content: string;
+  /** Regular file content (mutually exclusive with `sha`). */
+  content?: string;
+  /** Submodule gitlink target commit SHA (mutually exclusive with `content`). */
+  sha?: string;
 }
 interface CommitInput {
   org: string;

@@ -12,7 +12,7 @@ config.yaml: `orgs` (per-org `appId`, `privateKeyFile`; optional `apiBaseUrl`)
 
 ### Tools
 
-1. github_bot_commit: Commit files onto a branch as the GitHub App — creates the branch when it does not exist, otherwise appends a fast-forward commit to the existing branch head.
+1. github_bot_commit: Commit changes onto a branch as the GitHub App — creates the branch when it does not exist, otherwise appends a fast-forward commit to the existing branch head. A change entry carries either `content` (regular file) or `sha` (submodule gitlink, mode 160000).
 
 2. github_bot_open_pull_request: Open a pull request for an existing head branch as the GitHub App.
 

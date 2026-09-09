@@ -12,10 +12,17 @@ export function assertOrgRepo(
 }
 
 export function assertCommitInput(
-  input: { org: string; repo: string; changes: { path: string; content: string }[] },
+  input: { org: string; repo: string; changes: { path: string; content?: string; sha?: string }[] },
   orgs: Record<string, OrgConfig>,
 ): OrgConfig {
   const orgConfig = assertOrgRepo(input, orgs)
   if (!input.changes?.length) throw new Error('github-bot: changes must not be empty')
+  for (const change of input.changes) {
+    const hasContent = typeof change.content === 'string' && change.content !== ''
+    const hasSha = typeof change.sha === 'string' && change.sha !== ''
+    if (hasContent === hasSha) {
+      throw new Error('github-bot: each change must provide exactly one of `content` or `sha`')
+    }
+  }
   return orgConfig
 }

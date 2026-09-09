@@ -1,0 +1,11 @@
+- insert:
+    - id: github-ci-continuation
+      name: '@ruyiAi/dsh-osc-github-ci-continuation'
+      config:
+        source: osc-github
+        repository: DangoSys/buckyball
+        workspaces:
+          DangoSys/buckyball: /home/wanghui/Code/ruyi/environment/buckyball/DangoSys/buckyball
+        agentPreset: cordis
+        permissionPreset: workspace-write
+        maxIterations: 3

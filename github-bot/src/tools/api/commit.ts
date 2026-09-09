@@ -6,7 +6,10 @@ import { githubRequest } from '../libs/api.ts'
 
 export interface CommitChange {
   path: string
-  content: string
+  /** Regular file content (mutually exclusive with `sha`). */
+  content?: string
+  /** Submodule gitlink target commit SHA (mutually exclusive with `content`). */
+  sha?: string
 }
 
 export interface CommitInput {
@@ -50,8 +53,12 @@ export async function commitBranch(config: Config, input: CommitInput): Promise<
   const parent = (await request(`/repos/${owner}/${repo}/git/commits/${parentSha}`)) as {
     tree: { sha: string }
   }
-  const blobs = await Promise.all(
+  const entries = await Promise.all(
     input.changes.map(async change => {
+      if (change.sha !== undefined) {
+        // Submodule pointer: gitlink entry (mode 160000) referencing an existing commit.
+        return { path: change.path, mode: '160000', type: 'commit', sha: change.sha }
+      }
       const blob = (await request(`/repos/${owner}/${repo}/git/blobs`, {
         method: 'POST',
         body: JSON.stringify({ content: change.content, encoding: 'utf-8' }),
@@ -61,7 +68,7 @@ export async function commitBranch(config: Config, input: CommitInput): Promise<
   )
   const tree = (await request(`/repos/${owner}/${repo}/git/trees`, {
     method: 'POST',
-    body: JSON.stringify({ base_tree: parent.tree.sha, tree: blobs }),
+    body: JSON.stringify({ base_tree: parent.tree.sha, tree: entries }),
   })) as { sha: string }
   const commit = (await request(`/repos/${owner}/${repo}/git/commits`, {
     method: 'POST',
@@ -70,7 +77,8 @@ export async function commitBranch(config: Config, input: CommitInput): Promise<
   if (updating) {
     // Fast-forward the existing branch head onto the new commit. The new commit's
     // parent is the previous head, so `force: false` never rewrites history.
-    await request(branchPath, {
+    // Update uses the plural `git/refs/{ref}` endpoint (GET used singular `git/ref`).
+    await request(`/repos/${owner}/${repo}/git/refs/heads/${encodeURIComponent(input.branch)}`, {
       method: 'PATCH',
       body: JSON.stringify({ sha: commit.sha, force: false }),
     })
@@ -101,7 +109,8 @@ export function defineCommitTool(bot: { readonly config: Config }) {
           type: 'object',
           properties: {
             path: { type: 'string', required: true },
-            content: { type: 'string', required: true },
+            content: { type: 'string', description: 'Regular file content; mutually exclusive with `sha`.' },
+            sha: { type: 'string', description: 'Submodule gitlink commit SHA; mutually exclusive with `content`.' },
           },
           additionalProperties: false,
         },
