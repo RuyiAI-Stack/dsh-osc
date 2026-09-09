@@ -123,13 +123,15 @@ async function commitBranch(config, input) {
 	const { token } = await createInstallationToken(input.org, orgConfig);
 	const request = (path, init) => githubRequest(orgConfig, token, path, init);
 	const branchPath = `/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(input.branch)}`;
+	let parentSha;
+	let updating = false;
 	try {
-		const branchRef = await request(branchPath);
-		throw new Error(`github-bot: branch ${input.branch} already exists at ${branchRef.object.sha}; use a unique branch name`);
+		parentSha = (await request(branchPath)).object.sha;
+		updating = true;
 	} catch (error) {
 		if (!(error instanceof Error) || !error.message.startsWith("github-bot: GitHub API 404:")) throw error;
+		parentSha = (await request(`/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(input.base)}`)).object.sha;
 	}
-	const parentSha = (await request(`/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(input.base)}`)).object.sha;
 	const parent = await request(`/repos/${owner}/${repo}/git/commits/${parentSha}`);
 	const blobs = await Promise.all(input.changes.map(async (change) => {
 		const blob = await request(`/repos/${owner}/${repo}/git/blobs`, {
@@ -161,7 +163,14 @@ async function commitBranch(config, input) {
 			parents: [parentSha]
 		})
 	});
-	await request(`/repos/${owner}/${repo}/git/refs`, {
+	if (updating) await request(branchPath, {
+		method: "PATCH",
+		body: JSON.stringify({
+			sha: commit.sha,
+			force: false
+		})
+	});
+	else await request(`/repos/${owner}/${repo}/git/refs`, {
 		method: "POST",
 		body: JSON.stringify({
 			ref: `refs/heads/${input.branch}`,
@@ -178,7 +187,7 @@ async function commitBranch(config, input) {
 function defineCommitTool(bot) {
 	return defineTool({
 		name: "github_bot_commit",
-		description: "Commit file changes onto a new branch with the configured GitHub App.",
+		description: "Commit file changes onto a branch with the configured GitHub App. Creates the branch when it does not exist; otherwise appends a fast-forward commit to the existing branch head.",
 		parameters: {
 			org: {
 				type: "string",
@@ -191,7 +200,8 @@ function defineCommitTool(bot) {
 			},
 			base: {
 				type: "string",
-				required: true
+				required: true,
+				description: "Parent branch used only when the target branch does not exist yet."
 			},
 			branch: {
 				type: "string",

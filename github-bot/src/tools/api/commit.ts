@@ -32,19 +32,21 @@ export async function commitBranch(config: Config, input: CommitInput): Promise<
   const request = (path: string, init?: RequestInit) => githubRequest(orgConfig, token, path, init)
 
   const branchPath = `/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(input.branch)}`
+
+  // The parent is the existing branch head when updating, or `base` when creating.
+  let parentSha: string
+  let updating = false
   try {
     const branchRef = (await request(branchPath)) as { object: { sha: string } }
-    throw new Error(
-      `github-bot: branch ${input.branch} already exists at ${branchRef.object.sha}; use a unique branch name`,
-    )
+    parentSha = branchRef.object.sha
+    updating = true
   } catch (error) {
     if (!(error instanceof Error) || !error.message.startsWith('github-bot: GitHub API 404:')) throw error
+    const baseRef = (await request(
+      `/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(input.base)}`,
+    )) as { object: { sha: string } }
+    parentSha = baseRef.object.sha
   }
-
-  const baseRef = (await request(
-    `/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(input.base)}`,
-  )) as { object: { sha: string } }
-  const parentSha = baseRef.object.sha
   const parent = (await request(`/repos/${owner}/${repo}/git/commits/${parentSha}`)) as {
     tree: { sha: string }
   }
@@ -65,10 +67,19 @@ export async function commitBranch(config: Config, input: CommitInput): Promise<
     method: 'POST',
     body: JSON.stringify({ message: input.message, tree: tree.sha, parents: [parentSha] }),
   })) as { sha: string }
-  await request(`/repos/${owner}/${repo}/git/refs`, {
-    method: 'POST',
-    body: JSON.stringify({ ref: `refs/heads/${input.branch}`, sha: commit.sha }),
-  })
+  if (updating) {
+    // Fast-forward the existing branch head onto the new commit. The new commit's
+    // parent is the previous head, so `force: false` never rewrites history.
+    await request(branchPath, {
+      method: 'PATCH',
+      body: JSON.stringify({ sha: commit.sha, force: false }),
+    })
+  } else {
+    await request(`/repos/${owner}/${repo}/git/refs`, {
+      method: 'POST',
+      body: JSON.stringify({ ref: `refs/heads/${input.branch}`, sha: commit.sha }),
+    })
+  }
   return { commitSha: commit.sha, branch: input.branch, base: input.base, repo: input.repo }
 }
 
@@ -76,11 +87,11 @@ export function defineCommitTool(bot: { readonly config: Config }) {
   return defineTool({
     name: 'github_bot_commit',
     description:
-      'Commit file changes onto a new branch with the configured GitHub App.',
+      'Commit file changes onto a branch with the configured GitHub App. Creates the branch when it does not exist; otherwise appends a fast-forward commit to the existing branch head.',
     parameters: {
       org: { type: 'string', required: true },
       repo: { type: 'string', required: true, description: 'Repository in owner/name form.' },
-      base: { type: 'string', required: true },
+      base: { type: 'string', required: true, description: 'Parent branch used only when the target branch does not exist yet.' },
       branch: { type: 'string', required: true },
       message: { type: 'string', required: true },
       changes: {

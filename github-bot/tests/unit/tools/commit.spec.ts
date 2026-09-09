@@ -99,11 +99,12 @@ describe('github_bot_commit', () => {
     })
   })
 
-  it('throws when branch already exists', async () => {
+  it('appends a fast-forward commit to an existing branch', async () => {
     setupPem()
+    const patchBodies: unknown[] = []
     vi.stubGlobal(
       'fetch',
-      vi.fn(async (url: string | URL) => {
+      vi.fn(async (url: string | URL, init?: RequestInit) => {
         const href = String(url)
         if (href.includes('/app/installations?')) {
           return new Response(JSON.stringify([{ id: 9, account: { login: 'DangoSys' } }]), { status: 200 })
@@ -111,12 +112,29 @@ describe('github_bot_commit', () => {
         if (href.includes('/access_tokens')) {
           return new Response(JSON.stringify({ token: 'tok', expires_at: 't' }), { status: 200 })
         }
-        if (href.includes('/git/ref/heads/feat')) {
-          return new Response(JSON.stringify({ object: { sha: 'existing' } }), { status: 200 })
+        if (href.includes('/git/ref/heads/feat') && (!init?.method || init.method === 'GET')) {
+          return new Response(JSON.stringify({ object: { sha: 'existing-head' } }), { status: 200 })
         }
-        throw new Error(`unexpected fetch ${href}`)
+        if (href.includes('/git/commits/existing-head')) {
+          return new Response(JSON.stringify({ tree: { sha: 'tree-base' } }), { status: 200 })
+        }
+        if (href.includes('/git/blobs')) {
+          return new Response(JSON.stringify({ sha: 'blob-sha' }), { status: 200 })
+        }
+        if (href.includes('/git/trees')) {
+          return new Response(JSON.stringify({ sha: 'tree-sha' }), { status: 200 })
+        }
+        if (href.includes('/git/commits') && init?.method === 'POST') {
+          return new Response(JSON.stringify({ sha: 'commit-sha' }), { status: 200 })
+        }
+        if (href.includes('/git/ref/heads/feat') && init?.method === 'PATCH') {
+          patchBodies.push(init.body)
+          return new Response(JSON.stringify({}), { status: 200 })
+        }
+        throw new Error(`unexpected fetch ${href} ${init?.method}`)
       }),
     )
+
     await expect(
       commitBranch(config, {
         org: 'DangoSys',
@@ -126,6 +144,13 @@ describe('github_bot_commit', () => {
         message: 'msg',
         changes: [{ path: 'a.txt', content: 'x' }],
       }),
-    ).rejects.toThrow(/already exists/)
+    ).resolves.toEqual({
+      commitSha: 'commit-sha',
+      branch: 'feat',
+      base: 'main',
+      repo: 'DangoSys/buckyball',
+    })
+
+    expect(patchBodies).toEqual([JSON.stringify({ sha: 'commit-sha', force: false })])
   })
 })

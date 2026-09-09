@@ -12,7 +12,7 @@
 
 ### 可调用Tools
 
-1. github_bot_commit：使用 GitHub App 身份在仓库新建分支并提交文件。
+1. github_bot_commit：使用 GitHub App 身份在仓库提交文件到指定分支——分支不存在时新建，已存在时在其 HEAD 上追加一个 fast-forward commit。
 
 2. github_bot_open_pull_request：使用 GitHub App 身份对已有 head 分支开 Pull Request。
 
